@@ -1,0 +1,16 @@
+<h1>Submit a New Request</h1>
+<form action="/request/new" method="POST">
+    <div class="form-group">
+        <label for="category">Category:</label>
+        <select id="category" name="category" required>
+            <option value="section-change">Section Change</option>
+            <option value="course-registration">Course Registration</option>
+            <option value="capstone">Capstone</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
+    </div>
+    <button type="submit" class="btn">Submit Request</button>
+</form>
