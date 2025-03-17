@@ -11,7 +11,6 @@ const app = express();
 app.engine('handlebars', expressHandlebars.create({ defaultLayout: 'main' }).engine);  // Use expressHandlebars.create()
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views')); // Correct path to your views directory
- // Adjust the path if necessary
 
 // Middleware
 app.use(express.json());
@@ -182,7 +181,7 @@ app.get('/verify-email', async (req, res) => {
     }
 });
 
-// Start the server on port 8001
+// Start the server on port 8005
 app.listen(8005, () => {
     console.log("App is running on port 8005");
 });
