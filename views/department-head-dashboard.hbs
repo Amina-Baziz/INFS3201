@@ -1,0 +1,17 @@
+<h1>Department Head Dashboard</h1>
+<p>Welcome, Admin {{name}}!</p>
+<p>This is the admin panel where you can manage students.</p>
+<h2>Queues</h2>
+{{#each queues}}
+<div class="queue">
+    <h3>{{this.name}} ({{this.requests.length}} requests)</h3>
+    <ul>
+        {{#each this.requests}}
+        <li>
+            <a href="/request/{{this.id}}">Request #{{this.id}}</a> - {{this.category}} ({{this.status}})
+        </li>
+        {{/each}}
+    </ul>
+</div>
+{{/each}}
+<button id="random-request" class="btn">I don't know where to begin!</button>

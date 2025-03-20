@@ -1,0 +1,10 @@
+<h1> Student Profile</h1>
+
+<p><strong>Name:</strong> {{user.name}}</p>
+<p><strong>Email:</strong> {{user.email}}</p>
+<p><strong>Contact:</strong> {{#if user.contact}}{{user.contact}}{{else}}Not provided{{/if}}</p>
+<p><strong>Degree:</strong> {{#if user.degree}}{{user.degree}}{{else}}Not provided{{/if}}</p>
+
+<a href="/update-profile-form/{{user.email}}">
+    <button>Update Profile</button>
+</a>
