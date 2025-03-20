@@ -73,6 +73,10 @@ app.get('/verify-email', async (req, res) => {
 });
 
 
+
+
+
+
 app.get('/login', (req, res) => {
     res.render('login', { title: 'Login' });
 });
@@ -158,6 +162,6 @@ app.post('/update-profile', async (req, res) => {
 });
 
 
-app.listen(8010, () => {
-    console.log("App is running on port 8010");
+app.listen(8000, () => {
+    console.log("App is running on port 8000");
 });
