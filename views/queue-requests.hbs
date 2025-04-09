@@ -1,0 +1,19 @@
+<h1>{{category}} Queue</h1>
+
+{{#if requests.length}}
+  {{#each requests}}
+    <div class="request-box" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 15px;">
+        <p><strong>Request ID:</strong> {{this._id}}</p>
+        <p><strong>Student Email:</strong> {{this.studentEmail}}</p>
+        <p><strong>Status:</strong> {{this.status}}</p>
+        <p><strong>Submitted At:</strong> {{this.createdAt}}</p>
+        <p><strong>Estimated Completion:</strong> {{this.estimatedProcessingTime}}</p>
+        <p><strong>Note:</strong> {{this.note}}</p>
+        <a href="/admin/request/{{this._id}}">Open Request</a>
+    </div>
+  {{/each}}
+{{else}}
+  <p>No pending requests in this category.</p>
+{{/if}}
+
+<a href="/admin-dashboard">⬅ Back to Dashboard</a>

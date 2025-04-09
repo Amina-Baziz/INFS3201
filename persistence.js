@@ -189,6 +189,113 @@ async function verifyUserToken(token) {
     }
 }
 
+// __________________________________________________________________________________________________
+
+
+async function createRequest(request) {
+    try {
+        const db = await connectDB();
+        const result = await db.collection('Requests').insertOne(request);
+        return result.acknowledged;
+    } catch (error) {
+        console.error("Error creating request:", error);
+        return false;
+    }
+}
+
+/**
+ * Gets the number of pending requests in a specific category
+ * @param {string} category - The request category
+ * @returns {Promise<number>} Number of requests
+ */
+async function countPendingRequests(category) {
+    const db = await connectDB();
+    return await db.collection('Requests').countDocuments({
+        category,
+        status: 'pending'
+    });
+}
+
+
+/**
+ * Gets all requests submitted by a specific student
+ * @param {string} email - The student's email
+ * @returns {Promise<Array>} List of request objects
+ */
+async function getRequestsByStudent(email) {
+    const db = await connectDB();
+    return await db.collection('Requests').find({ studentEmail: email }).toArray();
+}
+
+/**
+ * Cancels a request by setting its status to 'cancelled'
+ * @param {string} requestId - The ID of the request
+ * @returns {Promise<boolean>} True if the update was successful
+ */
+async function cancelRequest(requestId) {
+    const db = await connectDB();
+    const result = await db.collection('Requests').updateOne(
+        { _id: new ObjectId(requestId) },
+        { $set: { status: 'cancelled' } }
+    );
+    return result.modifiedCount > 0;
+}
+
+
+/**
+ * Gets count of pending requests grouped by category
+ * @returns {Promise<Array>} Array of { category, count }
+ */
+async function getPendingRequestCountsByCategory() {
+    const db = await connectDB();
+    return await db.collection('Requests').aggregate([
+        { $match: { status: 'pending' } },
+        { $group: { _id: '$category', count: { $sum: 1 } } },
+        { $project: { category: '$_id', count: 1, _id: 0 } }
+    ]).toArray();
+}
+/**
+ * Gets all pending requests for a specific category (queue)
+ * @param {string} category
+ * @returns {Promise<Array>} List of pending requests
+ */
+async function getRequestsByCategory(category) {
+    const db = await connectDB();
+    return await db.collection('Requests').find({
+        category,
+        status: 'pending'
+    }).sort({ createdAt: 1 }).toArray(); // Oldest first
+}
+
+async function getRequestById(id) {
+    const db = await connectDB();
+    return await db.collection('Requests').findOne({ _id: new ObjectId(id) });
+}
+
+async function updateRequestStatus(id, status, adminNote) {
+    const db = await connectDB();
+    const result = await db.collection('Requests').updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { status, adminNote } }
+    );
+    return result.modifiedCount > 0;
+}
+
+/**
+ * Gets one random pending request
+ * @returns {Promise<Object|null>}
+ */
+async function getRandomPendingRequest() {
+    const db = await connectDB();
+    const result = await db.collection('Requests').aggregate([
+        { $match: { status: "pending" } },
+        { $sample: { size: 1 } }
+    ]).toArray();
+
+    return result[0] || null;
+}
+
+
 module.exports = {
     validateCredentials,
     createRegistration,
@@ -199,5 +306,15 @@ module.exports = {
     getUserByEmail,
     updateProfile,
     verifyUserToken,
-    storeSession
+    storeSession,
+    // ---------------
+    createRequest,
+    countPendingRequests,
+    getRequestsByStudent,
+    cancelRequest,
+    getPendingRequestCountsByCategory,
+    getRequestsByCategory,
+    getRequestById,
+    updateRequestStatus,
+    getRandomPendingRequest
 };

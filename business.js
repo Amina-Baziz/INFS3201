@@ -107,6 +107,130 @@ async function updateProfile(email, contact, degree) {
     return await persistence.updateProfile(email, contact, degree) 
 }
 
+// _______________________________________________________________________________________________
+
+function addBusinessMinutes(startDate, minutesToAdd) {
+    const WORK_START = 9;
+    const WORK_END = 17;
+    const MINUTES_PER_DAY = (WORK_END - WORK_START) * 60;
+
+    let current = new Date(startDate);
+
+    while (minutesToAdd > 0) {
+        let hour = current.getHours();
+        let isWeekend = current.getDay() === 0 || current.getDay() === 6;
+
+        // If not within work hours or it's the weekend, move to next work day at 9AM
+        if (isWeekend || hour < WORK_START || hour >= WORK_END) {
+            current.setDate(current.getDate() + 1);
+            current.setHours(WORK_START, 0, 0, 0);
+            continue;
+        }
+
+        let minutesLeftToday = ((WORK_END - hour) * 60) - current.getMinutes();
+        let minutesToAdvance = Math.min(minutesToAdd, minutesLeftToday);
+
+        current.setMinutes(current.getMinutes() + minutesToAdvance);
+        minutesToAdd -= minutesToAdvance;
+    }
+
+    return current;
+}
+
+
+/**
+ * Submits a new student request
+ * @param {string} studentEmail - The student's email
+ * @param {string} category - The request category
+ * @param {string} note - Additional note or message
+ * @param {string} semester - The current semester
+ * @returns {Promise<boolean>} True if successful, otherwise false
+ */
+async function submitRequest(studentEmail, category, note, semester) {
+    const createdAt = new Date();
+    const status = "pending";
+
+    const queueLength = await persistence.countPendingRequests(category);
+    const estimatedMinutes = (queueLength + 1) * 15;
+    
+
+    const estimatedDate = addBusinessMinutes(createdAt, estimatedMinutes);
+    const estimatedProcessingTime = estimatedDate.toLocaleString(); // Human-readable
+
+    const request = {
+        studentEmail,
+        category,
+        note,
+        semester,
+        status,
+        createdAt,
+        estimatedProcessingTime
+    };
+
+    return await persistence.createRequest(request);
+}
+
+
+/**
+ * Retrieves all requests for a given student
+ * @param {string} email - The student's email
+ * @returns {Promise<Array>} List of requests
+ */
+async function getStudentRequests(email) {
+    return await persistence.getRequestsByStudent(email);
+}
+
+/**
+ * Cancels a student's request
+ * @param {string} requestId - The request ID
+ * @returns {Promise<boolean>} True if cancelled, false otherwise
+ */
+async function cancelStudentRequest(requestId) {
+    return await persistence.cancelRequest(requestId);
+}
+
+/**
+ * Returns number of pending requests for each category
+ * @returns {Promise<Array>} Array of { category, count }
+ */
+async function getQueueSummary() {
+    return await persistence.getPendingRequestCountsByCategory();
+}
+/**
+ * Returns all pending requests for a specific category (queue)
+ * @param {string} category
+ * @returns {Promise<Array>}
+ */
+async function getQueueRequests(category) {
+    return await persistence.getRequestsByCategory(category);
+}
+
+/**
+ * Updates the request's status and adds admin note
+ * @param {string} id - Request ID
+ * @param {string} status - "resolved" or "rejected"
+ * @param {string} note - Admin note
+ * @returns {Promise<boolean>}
+ */
+async function handleRequest(id, status, note) {
+    return await persistence.updateRequestStatus(id, status, note);
+}
+/**
+ * Returns a request by its ID
+ * @param {string} id - The request's ObjectId
+ * @returns {Promise<Object|null>}
+ */
+async function getRequestById(id) {
+    return await persistence.getRequestById(id);
+}
+
+/**
+ * Returns one random pending request
+ * @returns {Promise<Object|null>}
+ */
+async function getRandomRequest() {
+    return await persistence.getRandomPendingRequest();
+}
 
 module.exports = {
     registerUser,
@@ -114,5 +238,14 @@ module.exports = {
     createSession,
     verifyUser,
     getUserByEmail,
-    updateProfile
+    updateProfile,
+    // _____________
+    submitRequest,
+    getStudentRequests,
+    cancelStudentRequest,
+    getQueueSummary,
+    getQueueRequests,
+    handleRequest,
+    getRequestById,
+    getRandomRequest
 };
