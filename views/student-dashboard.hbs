@@ -1,25 +1,46 @@
-<h1>Student Dashboard</h1>
-<h2>Your Requests</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Request ID</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>Submitted At</th>
-            <th>Estimated Completion</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{#each requests}}
-        <tr>
-            <td>{{this.id}}</td>
-            <td>{{this.category}}</td>
-            <td>{{this.status}}</td>
-            <td>{{this.submittedAt}}</td>
-            <td>{{this.estimatedCompletion}}</td>
-        </tr>
-        {{/each}}
-    </tbody>
-</table>
-<a href="/request/new" class="btn">Submit New Request</a>
+<div class="row">
+  <div class="col">
+    <h1 class="display-3">Student Dashboard</h1>
+    <p class="text-medium-emphasis">Welcome, {{user.name}}!</p>
+    <div class="card mb-3">
+      <div class="card-header">
+        <h4>My Requests</h4>
+      </div>
+      <div class="card-body">
+        {{#if requests.length}}
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Category</th>
+                <th>Note</th>
+                <th>Semester</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each requests}}
+              <tr>
+                <td>{{@index}}</td>
+                <td>{{this.category}}</td>
+                <td>{{this.note}}</td>
+                <td>{{this.semester}}</td>
+                <td>{{this.status}}</td>
+                <td>
+                  <a href="/request/{{this.id}}" class="btn btn-primary btn-sm">View</a>
+                </td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+        {{else}}
+        <p>No requests found.</p>
+        {{/if}}
+        <a href="/request/new" class="btn btn-primary mt-3">Submit New Request</a>
+      </div>
+    </div>
+  </div>
+</div>

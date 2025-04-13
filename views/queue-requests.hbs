@@ -1,19 +1,29 @@
-<h1>{{category}} Queue</h1>
-
-{{#if requests.length}}
-  {{#each requests}}
-    <div class="request-box" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 15px;">
-        <p><strong>Request ID:</strong> {{this._id}}</p>
-        <p><strong>Student Email:</strong> {{this.studentEmail}}</p>
-        <p><strong>Status:</strong> {{this.status}}</p>
-        <p><strong>Submitted At:</strong> {{this.createdAt}}</p>
-        <p><strong>Estimated Completion:</strong> {{this.estimatedProcessingTime}}</p>
-        <p><strong>Note:</strong> {{this.note}}</p>
-        <a href="/admin/request/{{this._id}}">Open Request</a>
-    </div>
-  {{/each}}
-{{else}}
-  <p>No pending requests in this category.</p>
-{{/if}}
-
-<a href="/admin-dashboard">⬅ Back to Dashboard</a>
+<div class="card mb-4">
+  <div class="card-header">
+    <strong>{{category}} Queue</strong>
+  </div>
+  <div class="card-body">
+    {{#if requests.length}}
+      {{#each requests}}
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12">
+              <p><strong>Request ID:</strong> {{this._id}}</p>
+              <p><strong>Student Email:</strong> {{this.studentEmail}}</p>
+              <p><strong>Status:</strong> {{this.status}}</p>
+              <p><strong>Submitted At:</strong> {{this.createdAt}}</p>
+              <p><strong>Estimated Completion:</strong> {{this.estimatedProcessingTime}}</p>
+              <p><strong>Note:</strong> {{this.note}}</p>
+            </div>
+          </div>
+          <a href="/admin/request/{{this._id}}" class="btn btn-primary px-3">Open Request</a>
+        </div>
+      </div>
+      {{/each}}
+    {{else}}
+      <p class="text-medium-emphasis">No pending requests in this category.</p>
+    {{/if}}
+    <a href="/admin-dashboard" class="btn btn-secondary px-4 mt-3">Back to Dashboard</a>
+  </div>
+</div>

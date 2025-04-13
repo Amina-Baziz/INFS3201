@@ -1,10 +1,21 @@
-<h1>Request Details</h1>
-<div class="request-details">
-    <p><strong>Request ID:</strong> {{request.id}}</p>
-    <p><strong>Category:</strong> {{request.category}}</p>
-    <p><strong>Status:</strong> {{request.status}}</p>
-    <p><strong>Submitted At:</strong> {{request.submittedAt}}</p>
-    <p><strong>Estimated Completion:</strong> {{request.estimatedCompletion}}</p>
-    <p><strong>Description:</strong> {{request.description}}</p>
+<div class="card mb-4">
+  <div class="card-header">
+    <strong>Request Details</strong>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-12">
+        <p><strong>Request ID:</strong> {{request._id}}</p>
+        <p><strong>Category:</strong> {{request.category}}</p>
+        <p><strong>Status:</strong> {{request.status}}</p>
+        <p><strong>Submitted At:</strong> {{request.createdAt}}</p>
+        <p><strong>Estimated Completion:</strong> {{request.estimatedProcessingTime}}</p>
+        <p><strong>Description:</strong> {{request.note}}</p>
+        {{#if request.adminNote}}
+        <p><strong>Admin Note:</strong> {{request.adminNote}}</p>
+        {{/if}}
+      </div>
+    </div>
+    <a href="/student-dashboard" class="btn btn-secondary px-4 mt-3">Back to Dashboard</a>
+  </div>
 </div>
-<a href="/student-dashboard" class="btn">Back to Dashboard</a>

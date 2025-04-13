@@ -1,10 +1,19 @@
-<h1> Student Profile</h1>
-
-<p><strong>Name:</strong> {{user.name}}</p>
-<p><strong>Email:</strong> {{user.email}}</p>
-<p><strong>Contact:</strong> {{#if user.contact}}{{user.contact}}{{else}}Not provided{{/if}}</p>
-<p><strong>Degree:</strong> {{#if user.degree}}{{user.degree}}{{else}}Not provided{{/if}}</p>
-
-<a href="/update-profile-form/{{user.email}}">
-    <button>Update Profile</button>
-</a>
+<div class="card mb-4">
+  <div class="card-header">
+    <strong>Student Profile</strong>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-12">
+        <p><strong>Name:</strong> {{user.name}}</p>
+        <p><strong>Email:</strong> {{user.email}}</p>
+        <p><strong>Contact:</strong> {{#if user.contact}}{{user.contact}}{{else}}Not provided{{/if}}</p>
+        <p><strong>Degree:</strong> {{#if user.degree}}{{user.degree}}{{else}}Not provided{{/if}}</p>
+      </div>
+    </div>
+    <div class="d-flex gap-3 mt-3">
+      <a href="/update-profile-form/{{user.email}}" class="btn btn-primary px-4">Update Profile</a>
+      <a href="/student-dashboard" class="btn btn-secondary px-4">Go to Dashboard</a>
+    </div>
+  </div>
+</div>
