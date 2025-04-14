@@ -29,7 +29,7 @@ app.use(session({
     cookie: { secure: false }
 }));
 
-// Set up Handlebars with the 'eq' helper
+// Set up the Handlebars with the 'eq' helper
 const hbs = expressHandlebars.create({
     extname: '.hbs',
     defaultLayout: 'main',
