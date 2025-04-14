@@ -1,0 +1,14 @@
+<div class="card mb-4">
+  <div class="card-header">
+    <strong>Success</strong>
+  </div>
+  <div class="card-body">
+    <p class="text-success">{{{message}}}</p>
+    
+    {{#if (eq user.role 'department_head')}}
+      <a href="/admin-dashboard" class="btn btn-primary px-4">Back to Dashboard</a>
+    {{else}}
+      <a href="/student-dashboard" class="btn btn-primary px-4">Back to Dashboard</a>
+    {{/if}}
+  </div>
+</div>

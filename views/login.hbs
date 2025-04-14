@@ -1,0 +1,29 @@
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h4>Login</h4>
+      </div>
+      <div class="card-body">
+        <p class="text-medium-emphasis">Sign in to your account</p>
+        <form action="/login" method="POST">
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+      </div>
+    </div>
+    <div class="card mt-3">
+      <div class="card-body text-center">
+        <p class="text-medium-emphasis mb-0">Create a new account to access the Course Management System</p>
+        <a href="/register" class="btn btn-primary mt-2">Register Now!</a>
+      </div>
+    </div>
+  </div>
+</div>

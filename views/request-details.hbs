@@ -1,0 +1,39 @@
+<div class="card mb-4">
+  <div class="card-header">
+    <strong>Request Details</strong>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-12">
+        <p><strong>Request ID:</strong> {{request._id}}</p>
+        <p><strong>Category:</strong> {{request.category}}</p>
+        <p><strong>Status:</strong> {{request.status}}</p>
+        <p><strong>Submitted At:</strong> {{request.createdAt}}</p>
+        <p><strong>Estimated Completion:</strong> {{request.estimatedProcessingTime}}</p>
+        <p><strong>Description:</strong> {{request.note}}</p>
+
+        {{#if request.adminNote}}
+          <p><strong>Admin Note:</strong> {{request.adminNote}}</p>
+        {{/if}}
+      </div>
+    </div>
+
+    {{#if (eq user.role "department_head")}}
+    <hr>
+    <form action="/admin/request/{{request._id}}" method="POST">
+      <div class="mb-3">
+        <label for="note" class="form-label">Admin Note:</label>
+        <textarea name="note" class="form-control" rows="4"></textarea>
+      </div>
+      <button type="submit" name="status" value="resolved" class="btn btn-success me-2">Resolve</button>
+      <button type="submit" name="status" value="rejected" class="btn btn-danger">Reject</button>
+    </form>
+    {{/if}}
+
+    <a 
+      href="{{#if (eq user.role 'department_head')}}/admin-dashboard{{else}}/student-dashboard{{/if}}" 
+      class="btn btn-secondary px-4 mt-3">
+      Back to Dashboard
+    </a>
+  </div>
+</div>

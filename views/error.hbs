@@ -1,0 +1,18 @@
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card mb-4 mx-4">
+      <div class="card-body p-4">
+        <h1 class="display-3">Error</h1>
+        <h4 class="pt-3">Something went wrong!</h4>
+        <p class="text-medium-emphasis text-danger">{{message}}</p>
+        <div class="text-center">
+          {{#if link}}
+            <a href="{{link}}" class="btn btn-primary px-4">Go back</a>
+          {{else}}
+            <a href="/" class="btn btn-primary px-4">Go to Home</a>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
