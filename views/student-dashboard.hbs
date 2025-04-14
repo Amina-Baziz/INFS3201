@@ -2,27 +2,44 @@
   <div class="col">
     <h1 class="display-3">Student Dashboard</h1>
     <p class="text-medium-emphasis">Welcome, {{user.name}}!</p>
-    <div class="card mb-3">
+
+    <!-- Submit New Request -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h4>Submit New Request</h4>
+      </div>
+      <div class="card-body">
+        <a href="/request/new" class="btn btn-primary">Create New Request</a>
+      </div>
+    </div>
+
+    <!-- Filter + Requests Table -->
+    <div class="card mb-4">
       <div class="card-header">
         <h4>My Requests</h4>
       </div>
       <div class="card-body">
-
-      <form method="GET" action="/student-dashboard" class="mb-3">
-        <label for="semester">Filter by Semester:</label>
-        <select name="semester" id="semester" class="form-select" onchange="this.form.submit()">
-          <option value="all" {{#unless selectedSemester}}selected{{/unless}}>All Semesters</option>
-          {{#each semesters}}
-            <option value="{{this}}" {{#if (eq ../selectedSemester this)}}selected{{/if}}>{{this}}</option>
-          {{/each}}
-        </select>
-      </form>
-
-
+        <!-- Filter -->
+        <form method="GET" action="/student-dashboard" class="mb-4">
+          <div class="row g-2 align-items-center">
+            <div class="col-md-4">
+              <label for="semester" class="form-label">Filter by Semester:</label>
+              <select name="semester" id="semester" class="form-select">
+                <option value="all" {{#unless selectedSemester}}selected{{/unless}}>All Semesters</option>
+                {{#each semesters}}
+                  <option value="{{this}}" {{#if (eq ../selectedSemester this)}}selected{{/if}}>{{this}}</option>
+                {{/each}}
+              </select>
+            </div>
+            <div class="col-md-auto mt-2 mt-md-4">
+              <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+          </div>
+        </form>
 
         {{#if requests.length}}
         <div class="table-responsive">
-          <table class="table">
+          <table class="table align-middle">
             <thead>
               <tr>
                 <th>#</th>
@@ -42,7 +59,7 @@
                 <td>{{this.semester}}</td>
                 <td>{{this.status}}</td>
                 <td>
-                  <a href="/student/request/{{this._id}}" class="btn btn-primary">View</a>
+                  <a href="/student/request/{{this._id}}" class="btn btn-primary btn-sm">View</a>
                   {{#if (eq this.status "pending")}}
                   <form action="/request/cancel/{{this._id}}" method="POST" style="display:inline;">
                     <button type="submit" class="btn btn-danger btn-sm ms-2">Cancel</button>
@@ -55,9 +72,8 @@
           </table>
         </div>
         {{else}}
-        <p>No requests found.</p>
+          <p class="text-medium-emphasis">No requests found.</p>
         {{/if}}
-        <a href="/request/new" class="btn btn-primary mt-3">Submit New Request</a>
       </div>
     </div>
   </div>
