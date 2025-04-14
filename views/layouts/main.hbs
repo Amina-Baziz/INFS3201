@@ -10,9 +10,9 @@
     <meta name="keyword" content="Course,Management,System,INFS3201">
     <title>{{title}} - Course Management System</title>
     <!-- CoreUI Styles -->
-    {{!-- <link rel="stylesheet" href="/vendors/simplebar/css/simplebar.css"> --}}
-    {{!-- <link rel="stylesheet" href="/css/vendors/simplebar.css"> --}}
-    {{!-- <link href="/css/style.css" rel="stylesheet"> --}}
+    <link rel="stylesheet" href="/vendors/simplebar/css/simplebar.css">
+    <link rel="stylesheet" href="/css/vendors/simplebar.css">
+    <link href="/css/style.css" rel="stylesheet">
     <!-- Custom Styles -->
     <link rel="stylesheet" href="/css/styles.css">
   </head>
@@ -25,25 +25,18 @@
       </div>
     </div>
     {{else}}
-    <!-- Dashboard layout with sidebar and header -->
+    <!-- Dashboard layout with sidebar -->
     <div class="sidebar sidebar-dark sidebar-fixed" id="sidebar">
       <div class="sidebar-brand d-none d-md-flex">
         <span class="fw-semibold">Course Management</span>
       </div>
       <ul class="sidebar-nav" data-coreui="navigation" data-simplebar="">
-        <li class="nav-item"><a class="nav-link {{#if (eq title 'Course Management System')}}active{{/if}}" href="/">Home</a></li>
-        <li class="nav-title">Menu</li>
-        {{#unless user}}
-        <li class="nav-item"><a class="nav-link {{#if (eq title 'Register')}}active{{/if}}" href="/register">Register</a></li>
-        <li class="nav-item"><a class="nav-link {{#if (eq title 'Login')}}active{{/if}}" href="/login">Login</a></li>
-        {{/unless}}
         {{#if user}}
         {{#if (eq user.role 'student')}}
-        <li class="nav-item"><a class="nav-link {{#if (eq title 'Student Dashboard')}}active{{/if}}" href="/student-dashboard">Student Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link {{#if (eq title 'Student Profile')}}active{{/if}}" href="/profile/{{user.email}}">Profile</a></li>
+        <li class="nav-item"><a class="nav-link {{#if (eq title 'Student Dashboard')}}active{{/if}}" href="/student-dashboard">Dashboard</a></li>
         {{/if}}
         {{#if (eq user.role 'department_head')}}
-        <li class="nav-item"><a class="nav-link {{#if (eq title 'Admin Dashboard')}}active{{/if}}" href="/admin-dashboard?name={{user.name}}">Department Head Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link {{#if (eq title 'Admin Dashboard')}}active{{/if}}" href="/admin-dashboard?name={{user.name}}">Dashboard</a></li>
         {{/if}}
         <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
         {{/if}}
@@ -51,58 +44,6 @@
       <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable">Toggle Sidebar</button>
     </div>
     <div class="wrapper d-flex flex-column min-vh-100 bg-light">
-      <header class="header header-sticky mb-4">
-        <div class="container-fluid">
-          <button class="header-toggler px-md-0 me-md-3" type="button" onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()">
-            Menu
-          </button>
-          <a class="header-brand d-md-none" href="/">Course Management</a>
-          <ul class="header-nav d-none d-md-flex">
-            {{#if user}}
-            {{#if (eq user.role 'student')}}
-            <li class="nav-item"><a class="nav-link" href="/student-dashboard">Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="/profile/{{user.email}}">Profile</a></li>
-            {{else}}
-            <li class="nav-item"><a class="nav-link" href="/admin-dashboard?name={{user.name}}">Dashboard</a></li>
-            {{/if}}
-            {{/if}}
-          </ul>
-          <ul class="header-nav ms-auto">
-            {{!-- <li class="nav-item"><a class="nav-link" href="#">Notifications</a></li> --}}
-          </ul>
-          <ul class="header-nav ms-3">
-            <li class="nav-item dropdown">
-              <span class="nav-link py-0 text-dark" style="cursor:default;">
-              Account
-              </span>
-
-              <div class="dropdown-menu dropdown-menu-end pt-0">
-                <div class="dropdown-header bg-light py-2">
-                  <div class="fw-semibold">Account</div>
-                </div>
-                {{#if user}}
-                <a class="dropdown-item" href="/profile/{{user.email}}">Profile</a>
-                <a class="dropdown-item" href="/logout">Logout</a>
-                {{else}}
-                <a class="dropdown-item" href="/login">Login</a>
-                <a class="dropdown-item" href="/register">Register</a>
-                {{/if}}
-              </div>
-            </li>
-          </ul>
-        </div>
-        <div class="header-divider"></div>
-        <div class="container-fluid">
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb my-0 ms-2">
-              <li class="breadcrumb-item">
-                <a href="/">Home</a>
-              </li>
-              <li class="breadcrumb-item active"><span>{{title}}</span></li>
-            </ol>
-          </nav>
-        </div>
-      </header>
       <div class="body flex-grow-1 px-3">
         <div class="container-lg">
           {{{body}}}
@@ -115,8 +56,8 @@
     </div>
     {{/if}}
     <!-- CoreUI Scripts -->
-    {{!-- <script src="/vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
-    <script src="/vendors/simplebar/js/simplebar.min.js"></script> --}}
+    <script src="/vendors/@coreui/coreui/js/coreui.bundle.min.js"></script>
+    <script src="/vendors/simplebar/js/simplebar.min.js"></script>
     <!-- Custom Script for Random Request Button -->
     <script>
       document.getElementById('random-request')?.addEventListener('click', async () => {
