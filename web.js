@@ -4,7 +4,6 @@ const nodemailer = require('nodemailer');
 const path = require('path');
 const expressHandlebars = require('express-handlebars');
 const session = require('express-session');
-
 const cookieParser = require('cookie-parser');
 
 
@@ -22,7 +21,7 @@ app.use((req, res, next) => {
 
 
 
-// Set up session middleware
+// Set up the sessions in  middleware
 app.use(session({
     secret: 'your-secret-key',
     resave: false,
