@@ -38,6 +38,7 @@ async function registerUser(name, email, password, description, role = "student"
             verificationLink: `http://localhost:8000/verify-email?token=${verificationToken}`
         };
     } catch (error) {
+        console.error("registerUser error:", error);
         return false;
     }
 }
@@ -106,6 +107,20 @@ async function getUserByEmail(email){
 async function updateProfile(email, contact, degree) {
     return await persistence.updateProfile(email, contact, degree) 
 }
+
+/**
+ * delete the session from database
+ * @param {string} email - The user's email address
+ * @returns {Promise<boolean>} True if the update is successful, otherwise false
+ */
+async function logoutUser(sessionKey) {
+    return await persistence.deleteSession(sessionKey);
+}
+async function getUserById(userId) {
+    return await persistence.getUserById(userId);
+}
+
+
 
 // _______________________________________________________________________________________________
 
@@ -232,6 +247,53 @@ async function getRandomRequest() {
     return await persistence.getRandomPendingRequest();
 }
 
+/**
+ * Generates a simple random token using bcrypt
+ * @param {string} email - The user's email
+ * @returns {string} - A unique token string
+ */
+function generateToken(email) {
+    const raw = email + Date.now() + Math.random();
+    return bcrypt.hashSync(raw, 5).replace(/\//g, '_'); // Remove slashes to make it URL-safe
+}
+
+/**
+ * Sends a password reset link by generating and storing a token
+ * @param {string} email - The user's email
+ * @returns {Promise<boolean>} True if user found and token set
+ */
+async function sendResetLink(email) {
+    const user = await persistence.getUserByEmail(email);
+    if (!user) return false;
+
+    const token = generateToken(email); 
+    await persistence.setResetToken(email, token);
+
+    const link = `http://localhost:8000/reset-password?token=${token}`;
+    console.log(`Password Reset Link: ${link}`); // Simulated email
+
+    return true;
+}
+
+/**
+ * Validates a reset token
+ */
+async function validateResetToken(token) {
+    return await persistence.getUserByResetToken(token);
+}
+
+/**
+ * Resets the user password
+ */
+async function resetUserPassword(token, newPassword) {
+    const user = await persistence.getUserByResetToken(token);
+    if (!user) return false;
+
+    const hash = bcrypt.hashSync(newPassword, 10);
+    return await persistence.updateUserPassword(user.email, hash);
+}
+
+
 module.exports = {
     registerUser,
     authenticateUser,
@@ -239,6 +301,8 @@ module.exports = {
     verifyUser,
     getUserByEmail,
     updateProfile,
+    logoutUser,
+    getUserById,
     // _____________
     submitRequest,
     getStudentRequests,
@@ -247,5 +311,10 @@ module.exports = {
     getQueueRequests,
     handleRequest,
     getRequestById,
-    getRandomRequest
+    getRandomRequest,
+    generateToken,
+    sendResetLink,
+    validateResetToken,
+    resetUserPassword
 };
+

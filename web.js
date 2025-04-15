@@ -3,13 +3,34 @@ const business = require('./business');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const expressHandlebars = require('express-handlebars');
-const session = require('express-session');
 const cookieParser = require('cookie-parser');
 
+const persistence = require('./persistence'); // Make sure this is already imported
 
 const app = express();
 
 app.use(cookieParser());
+app.use(async (req, res, next) => {
+    const sessionKey = req.cookies.session;
+
+    if (sessionKey) {
+        const sessionData = await persistence.getSession(sessionKey);
+
+        if (sessionData && sessionData.userId) {
+            const user = await persistence.getUserById(sessionData.userId);
+
+            if (user) {
+                req.session = { user };
+                res.locals.user = user;
+            }
+        }
+    }
+
+    next();
+});
+
+
+
 const crypto = require('crypto');
 app.use((req, res, next) => {
   if (!req.cookies.csrfToken) {
@@ -20,14 +41,6 @@ app.use((req, res, next) => {
 });
 
 
-
-// Set up the sessions in  middleware
-app.use(session({
-    secret: 'your-secret-key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false }
-}));
 
 // Set up the Handlebars with the 'eq' helper
 const hbs = expressHandlebars.create({
@@ -59,18 +72,12 @@ function logEmailDetails(to, verificationLink) {
     console.log("---------------------------------\n");
 }
 
-// Middleware to pass user session data to views
-app.use((req, res, next) => {
-    res.locals.user = req.session.user || null;
-    next();
-});
-
 app.get('/', (req, res) => {
     res.render('home', { title: 'Course Management System', fullPageLayout: true });
 });
 
 app.get('/register', (req, res) => {
-    if (req.session.user) {
+    if (req.session && req.session.user) {
         return res.redirect(`/profile/${req.session.user.email}`);
     }
     res.render('register', { title: 'Register', fullPageLayout: true });
@@ -97,7 +104,7 @@ app.post('/register', async (req, res) => {
 
     logEmailDetails(userData.email, userData.verificationLink);
 
-    res.render('success', { message: 'Registration successful! Please check your email for verification.', fullPageLayout: true, user: req.session.user });
+    res.render('success', { message: 'Registration successful! Please check your email for verification.', fullPageLayout: true,  user: (req.session && req.session.user) || null });
 });
 
 app.get('/verify-email', async (req, res) => {
@@ -109,14 +116,14 @@ app.get('/verify-email', async (req, res) => {
 
     const success = await business.verifyUser(token);
     if (success) {
-        res.render('success', { message: "Email Verified Successfully! You can now <a href='/login'>login</a>.", fullPageLayout: true, user: req.session.user });
+        res.render('success', { message: "Email Verified Successfully! You can now <a href='/login'>login</a>.", fullPageLayout: true, user: (req.session && req.session.user) || null });
     } else {
         res.render('error', { message: "Invalid or Expired Verification Token", fullPageLayout: true });
     }
 });
 
 app.get('/login', (req, res) => {
-    if (req.session.user) {
+    if (req.session && req.session.user) {
         return res.redirect(`/profile/${req.session.user.email}`);
     }
     res.render('login', { title: 'Login', fullPageLayout: true });
@@ -139,9 +146,16 @@ app.post('/login', async (req, res) => {
         return res.render('error', { message: "Please verify your email before logging in!", link: '/', fullPageLayout: true });
     }
 
-    req.session.user = user;
-    req.session.sessionKey = await business.createSession(user);
+    // Create session in MongoDB
+    const sessionKey = await business.createSession(user);
 
+    //  Store sessionKey in cookie
+    res.cookie("session", sessionKey, { httpOnly: true });
+
+    //  Optional: manually attach user for immediate use
+    req.session = { user };
+
+    //  Redirect user
     if (user.role === "department_head") {
         res.redirect(`/admin-dashboard?name=${user.name}`);
     } else {
@@ -150,9 +164,16 @@ app.post('/login', async (req, res) => {
 });
 
 
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
+
+app.get("/logout", async (req, res) => {
+    const key = req.cookies.session;
+
+    if (key) {
+        await business.logoutUser(key); 
+        res.clearCookie("session"); 
+    }
+
+    res.redirect("/");
 });
 
 // ___________________________________________________________________________________________________
@@ -168,7 +189,7 @@ app.get('/admin-dashboard', async (req, res) => {
     if (!req.session.user || req.session.user.role !== "department_head") {
         return res.redirect('/login');
     }
-    const name = req.query.name || req.session.user.name || 'Admin';
+    const name = req.query.name || (req.session && req.session.user && req.session.user.name) || 'Admin';
     const queues = await business.getQueueSummary();
     res.render('department-head-dashboard', { title: 'Admin Dashboard', name, queues });
 });
@@ -285,11 +306,11 @@ app.get('/admin/random-request', async (req, res) => {
 
 
 app.get('/student-dashboard', async (req, res) => {
-    if (!req.session.user) {
+    if (!req.session || !req.session.user) {
         return res.redirect('/login');
     }
 
-    const email = req.session.user.email;
+    const email = req.session && req.session.user && req.session.user.email;
     const allRequests = await business.getStudentRequests(email);
 
     // Extract unique, non-empty semesters and sort them
@@ -429,6 +450,69 @@ app.get('/request/new', (req, res) => {
     }
   });
   
+
+// Request password reset
+app.get('/forgot-password', (req, res) => {
+    res.render('forgot-password', { title: 'Forgot Password', fullPageLayout: true });
+});
+
+app.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    const result = await business.sendResetLink(email);
+
+    if (!result) {
+        return res.render('error', {
+            message: 'User not found or email failed to send.',
+            link: '/forgot-password',
+            fullPageLayout: true
+        });
+    }
+
+    res.render('success', {
+        message: 'Password reset link sent. Please check your email.',
+        fullPageLayout: true
+    });
+});
+
+// Reset page (link from email)
+app.get('/reset-password', async (req, res) => {
+    const { token } = req.query;
+    const valid = await business.validateResetToken(token);
+
+    if (!valid) {
+        return res.render('error', {
+            message: 'Invalid or expired reset token.',
+            link: '/',
+            fullPageLayout: true
+        });
+    }
+
+    res.render('reset-password', {
+        title: 'Reset Password',
+        token,
+        fullPageLayout: true
+    });
+});
+
+app.post('/reset-password', async (req, res) => {
+    const { token, newPassword } = req.body;
+    const success = await business.resetUserPassword(token, newPassword);
+
+    if (!success) {
+        return res.render('error', {
+            message: 'Failed to reset password. Token may be expired.',
+            link: '/forgot-password',
+            fullPageLayout: true
+        });
+    }
+
+    res.render('success', {
+        message: 'Password has been reset successfully! You can now <a href="/login">login</a>.',
+        fullPageLayout: true
+    });
+});
+
+
 
 app.listen(8000, () => {
     console.log("App is running on port 8000");

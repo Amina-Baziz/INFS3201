@@ -2,19 +2,19 @@ const { MongoClient, ObjectId } = require('mongodb');
 const bcrypt = require('bcryptjs');
 
 
-let client = undefined
-const link = 'mongodb+srv://amina:12amina34@cluster0.t2dor.mongodb.net/';
-const dbName = 'project'; 
+const uri = 'mongodb+srv://amina:12amina34@cluster0.t2dor.mongodb.net/?retryWrites=true&w=majority';
+const dbName = 'project';
 
 /**
  * Establishes a connection to the MongoDB database
  * @returns {Promise<Db>} A promise that resolves to the connected database instance
  */
 async function connectDB() {
-    const client = new MongoClient(link);
+    const client = new MongoClient(uri);
     await client.connect();
     return client.db(dbName);
 }
+
 /**
  * Validates user credentials by checking if an email exists in the database and returns the user if found
  * @param {string} email - The email address of the user
@@ -57,6 +57,11 @@ async function createRegistration(user) {
         return false;
     }
 }
+async function getUserById(userId) {
+    const db = await connectDB();
+    return await db.collection('UserDetails').findOne({ _id: new ObjectId(userId) });
+}
+
 
 /**
  * Retrieves a user document by their email address
@@ -300,6 +305,54 @@ async function getRandomPendingRequest() {
     return result[0] || null;
 }
 
+/**
+ * Sets a password reset token and expiry for a user
+ * @param {string} email - User's email to reset password
+ * @param {string} token - Generated secure token
+ * @returns {Promise<Object>} MongoDB update result
+ */
+async function setResetToken(email, token) {
+    const db = await connectDB();
+    const expiry = new Date(Date.now() + 1000 * 60 * 15); // 15 minutes
+    return await db.collection('UserDetails').updateOne(
+        { email },
+        { $set: { resetToken: token, resetTokenExpiry: expiry } }
+    );
+}
+
+/**
+ * Retrieves a user by a valid, non-expired reset token
+ * @param {string} token - The reset token
+ * @returns {Promise<Object|null>} User object if token is valid
+ */
+async function getUserByResetToken(token) {
+    const db = await connectDB();
+    const now = new Date();
+    return await db.collection('UserDetails').findOne({
+        resetToken: token,
+        resetTokenExpiry: { $gt: now }
+    });
+}
+
+/**
+ * Updates a user's password and clears reset token fields
+ * @param {string} email - User's email
+ * @param {string} hashedPassword - The new hashed password
+ * @returns {Promise<Object>} MongoDB update result
+ */
+async function updateUserPassword(email, hashedPassword) {
+    const db = await connectDB();
+    return await db.collection('UserDetails').updateOne(
+        { email },
+        {
+            $set: { passwordHash: hashedPassword },
+            $unset: { resetToken: "", resetTokenExpiry: "" }
+        }
+    );
+}
+
+
+
 
 module.exports = {
     validateCredentials,
@@ -312,6 +365,7 @@ module.exports = {
     updateProfile,
     verifyUserToken,
     storeSession,
+    getUserById,
     // ---------------
     createRequest,
     countPendingRequests,
@@ -321,5 +375,8 @@ module.exports = {
     getRequestsByCategory,
     getRequestById,
     updateRequestStatus,
-    getRandomPendingRequest
+    getRandomPendingRequest,
+    setResetToken,
+    getUserByResetToken,
+    updateUserPassword
 };
