@@ -1,19 +1,19 @@
 const { MongoClient, ObjectId } = require('mongodb');
 const bcrypt = require('bcryptjs');
 
-
-const uri = 'mongodb+srv://amina:12amina34@cluster0.t2dor.mongodb.net/?retryWrites=true&w=majority';
+const uri = 'mongodb+srv://amina:12amina34@cluster0.t2dor.mongodb.net/?retryWrites=true&w=majority&tls=true';
 const dbName = 'project';
 
 /**
  * Establishes a connection to the MongoDB database
- * @returns {Promise<Db>} A promise that resolves to the connected database instance
+ * @returns {Promise<Db>}
  */
 async function connectDB() {
     const client = new MongoClient(uri);
     await client.connect();
     return client.db(dbName);
 }
+
 
 /**
  * Validates user credentials by checking if an email exists in the database and returns the user if found
