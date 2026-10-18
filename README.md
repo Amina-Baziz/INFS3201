@@ -96,9 +96,3 @@ static/         Static assets
 | `/admin/queue/:category` | Department head | Pending requests in a category |
 | `/admin/request/:id` | Department head | View and handle a request |
 | `/admin/random-request` | Department head | Jump to a random pending request |
-
-## Team
-
-- Amina Baziz
-- Wahed Shaik
-- Talal
